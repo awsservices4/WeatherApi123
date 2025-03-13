@@ -1,0 +1,60 @@
+# ASP.NET
+# Build and test ASP.NET projects.
+# Add steps that publish symbols, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/apps/aspnet/build-aspnet-4
+
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+steps:
+- task: NuGetToolInstaller@1
+  inputs:
+    versionSpec: 6.x
+    checkLatest: true
+  continueOnError: true 
+# - task: DotNetCoreCLI@2
+#   displayName: 'Dotnet restore'
+#   inputs:
+#     azureSubscription: 'Free Trial(8654e7bd-597a-4dab-942c-f26eba404f74)'
+#     command: 'restore'
+#     projects: '$(solution)'
+#     feedsToUse: 'select'
+
+# - task: DotNetCoreCLI@2
+#   displayName: 'Dotnet Build'
+#   inputs:
+#     command: 'build'
+#     projects: '$(solution)'
+#     configuration: '$(buildConfiguration)'
+
+
+# - task: DotNetCoreCLI@2
+#   displayName: 'Dotnet Publish'
+#   inputs:
+#     command: 'publish'
+#     publishWebProjects: true
+#     zipAfterPublish: false
+#     arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+
+# - task: PublishPipelineArtifact@1
+#   inputs:
+#     targetPath: '$(Build.ArtifactStagingDirectory)'
+#     artifactName: 'ReleaseAPp'
+
+- task: Docker@2
+  displayName: "AZure Container Registry"
+  inputs:
+    containerRegistry: 'Container Registry'
+    repository: 'ACRimages14343'
+    command: 'buildAndPush'
+    Dockerfile: '**/samples/releasesapp/Dockerfile'
+
+
